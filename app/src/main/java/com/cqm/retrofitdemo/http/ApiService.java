@@ -1,96 +1,58 @@
 package com.cqm.retrofitdemo.http;
 
-import java.util.concurrent.TimeUnit;
+import com.cqm.retrofitdemo.bean.NewsResult;
 
-import okhttp3.OkHttpClient;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
+import java.util.Map;
+
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.Multipart;
+import retrofit2.http.POST;
+import retrofit2.http.Part;
+import retrofit2.http.PartMap;
+import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
+import retrofit2.http.Streaming;
+import retrofit2.http.Url;
 
 /**
  * Created by chenqm on 2016/12/12.
  */
 
-public class ApiService {
-
-    public static final String BASE_SERVICE = "http://v.juhe.cn/";
-    //读超时长，单位：毫秒
-    public static final int READ_TIME_OUT = 7676;
-    //连接时长，单位：毫秒
-    public static final int CONNECT_TIME_OUT = 7676;
-
-    private ApiService() {
-
-    }
-
-    public static <T> T createRetrofitService(final Class<T> service) {
-
-        //开启Log
-//        HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor();
-//        logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        //缓存
-//        File cacheFile = new File(BaseApplication.getAppContext().getCacheDir(), "cache");
-//        Cache cache = new Cache(cacheFile, 1024 * 1024 * 100); //100Mb
-        //增加头部信息
-//        Interceptor headerInterceptor =new Interceptor() {
-//            @Override
-//            public Response intercept(Chain chain) throws IOException {
-//                Request build = chain.request().newBuilder()
-//                        .addHeader("Content-Type", "application/json")
-//                        .build();
-//                return chain.proceed(build);
-//            }
-//        };
-
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .readTimeout(READ_TIME_OUT, TimeUnit.MILLISECONDS)
-                .connectTimeout(CONNECT_TIME_OUT, TimeUnit.MILLISECONDS)
-//                .addInterceptor(mRewriteCacheControlInterceptor)
-//                .addNetworkInterceptor(mRewriteCacheControlInterceptor)
-//                .addInterceptor(headerInterceptor)
-//                .addInterceptor(logInterceptor)
-//                .cache(cache)
-                .build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(okHttpClient)
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl(BASE_SERVICE)
-                .build();
-
-        return retrofit.create(service);
-    }
+public interface ApiService {
 
 
-    /**
-     * 云端响应头拦截器，用来配置缓存策略
-     * Dangerous interceptor that rewrites the server's cache-control header.
-     */
-//    private final Interceptor mRewriteCacheControlInterceptor = new Interceptor() {
-//        @Override
-//        public Response intercept(Chain chain) throws IOException {
-//            Request request = chain.request();
-//            String cacheControl = request.cacheControl().toString();
-//            if (!NetWorkUtils.isNetConnected(BaseApplication.getAppContext())) {
-//                request = request.newBuilder()
-//                        .cacheControl(TextUtils.isEmpty(cacheControl)? CacheControl.FORCE_NETWORK:CacheControl.FORCE_CACHE)
-//                        .build();
-//            }
-//            Response originalResponse = chain.proceed(request);
-//            if (NetWorkUtils.isNetConnected(BaseApplication.getAppContext())) {
-//                //有网的时候读接口上的@Headers里的配置，你可以在这里进行统一的设置
-//
-//                return originalResponse.newBuilder()
-//                        .header("Cache-Control", cacheControl)
-//                        .removeHeader("Pragma")
-//                        .build();
-//            } else {
-//                return originalResponse.newBuilder()
-//                        .header("Cache-Control", "public, only-if-cached, max-stale=" + CACHE_STALE_SEC)
-//                        .removeHeader("Pragma")
-//                        .build();
-//            }
-//        }
-//    };
+    @GET("toutiao/index")
+    Call<NewsResult> getNewsData(@Query("key") String key, @Query("type") String type);
+
+    @GET("toutiao/index")
+    Call<NewsResult> getNewsData(@QueryMap Map<String, String> options);
+
+
+    //文件上传
+    @Multipart
+    @POST("upload")
+    Call<ResponseBody> upload(@Part("description") RequestBody description,
+                              @Part MultipartBody.Part file);
+
+    @Multipart
+    @POST("upload/")
+    Call<ResponseBody> uploadFiles(
+            @Part("description") String description,
+            @PartMap() Map<String, RequestBody> maps);
+
+    @Multipart
+    @POST("upload/")
+    Call<ResponseBody> upload(
+            @Body RequestBody body);
+
+    @Streaming
+    @GET
+    Call<ResponseBody> downloadFile(@Url String   fileUrl);
+
+
 }
