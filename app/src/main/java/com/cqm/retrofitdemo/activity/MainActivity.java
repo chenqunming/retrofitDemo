@@ -1,11 +1,14 @@
 package com.cqm.retrofitdemo.activity;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.cqm.retrofitdemo.R;
@@ -37,10 +40,22 @@ public class MainActivity extends AppCompatActivity {
     private List<NewsBean> mDatas;
     private NewsAdapter mAdapter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+
+            //底部导航栏
+            //window.setNavigationBarColor(activity.getResources().getColor(colorResId));
+        }
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+
         mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview);
 //        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -53,8 +68,10 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
 
         loadData();
-        String filePath = "http://wdj-uc1-apk.wdjcdn.com/0/7f/4314a770f18eaa2744c92a9a87f497f0.apk";
-        downloadFild(filePath);
+
+
+//        String filePath = "http://wdj-uc1-apk.wdjcdn.com/0/7f/4314a770f18eaa2744c92a9a87f497f0.apk";
+//        downloadFild(filePath);
 
     }
 
@@ -154,12 +171,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ResponseBody> call,
                                    final Response<ResponseBody> response) {
-                Log.v("Upload", "success");
                 new Thread(){
                     @Override
                     public void run() {
                         super.run();
                         writeResponseBodyToDisk(response.body());
+                        Log.v("Download", "success");
                     }
                 }.start();
 
@@ -167,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e("Upload error:", t.getMessage());
+                Log.e("Download error:", t.getMessage());
             }
         });
     }
@@ -177,19 +194,15 @@ public class MainActivity extends AppCompatActivity {
         File futureStudioIconFile = new File(Environment.getExternalStorageDirectory(),"aa.apk");
 
         try{
-            if(!futureStudioIconFile.exists())
+            if(!futureStudioIconFile.exists()){
                 futureStudioIconFile.createNewFile();
-        }catch(IOException e){
-            Log.e("IOException", "exception in createNewFile() method");
-            return false;
-        }
-        try {
+            }
             InputStream inputStream = null;
             OutputStream outputStream = null;
             try {
                 byte[] fileReader = new byte[4096];
-//                long fileSize = body.contentLength();
-//                long fileSizeDownloaded = 0;
+                long fileSize = body.contentLength();
+                long fileSizeDownloaded = 0;
                 inputStream = body.byteStream();
                 outputStream = new FileOutputStream(futureStudioIconFile);
                 while (true) {
@@ -197,8 +210,10 @@ public class MainActivity extends AppCompatActivity {
                     if (read == -1) {
                         break;
                     }
-                    outputStream.write(fileReader, 0, read);
-//                    fileSizeDownloaded += read;
+                    fileSizeDownloaded += read;
+                    String str = (fileSizeDownloaded*100/fileSize)+"%";
+                    Log.v("Download","downing ... "+str);
+
                 }
                 outputStream.flush();
                 return true;
@@ -213,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         } catch (IOException e) {
+            Log.e("Download error:", "write file error");
             return false;
         }
     }
