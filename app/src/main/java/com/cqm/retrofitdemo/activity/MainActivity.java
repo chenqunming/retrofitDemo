@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             //底部导航栏
             //window.setNavigationBarColor(activity.getResources().getColor(colorResId));
         }
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+//        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview);
