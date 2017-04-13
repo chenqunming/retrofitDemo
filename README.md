@@ -5,8 +5,8 @@ retrofit 练习RetrofitUtil
 
 ### 导入资源
 
-compile 'com.github.bumptech.glide:glide:3.7.0'
-compile 'com.squareup.retrofit2:retrofit:2.1.0'
-compile 'com.squareup.retrofit2:converter-gson:2.1.0'
-compile 'com.squareup.retrofit2:converter-scalars:2.1.0'
-compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+- compile 'com.github.bumptech.glide:glide:3.7.0'
+- compile 'com.squareup.retrofit2:retrofit:2.1.0'
+- compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+- compile 'com.squareup.retrofit2:converter-scalars:2.1.0'
+- compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
